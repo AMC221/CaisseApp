@@ -47,6 +47,10 @@ dependencies:
   flutter_login: ^4.1.1
   image: ^3.0.2
   logging: ^1.2.0
+  msix: ^3.7.0
+  flutter_charts: ^0.5.1
+  syncfusion_flutter_charts: ^21.2.4
+
 
 
 
@@ -78,6 +82,7 @@ flutter:
   assets:
 
       - assets/youmaz2.png
+      - assets/youm.ico
       - assets/database/orderdb.db
       - assets/database/products2.db
       - assets/database/usersdb.db

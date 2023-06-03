@@ -10,6 +10,8 @@ class HistoryController extends GetxController {
   late RxList<Map<String, dynamic>> orderItems = <Map<String, dynamic>>[].obs;
   late RxList<Order> filteredOrders = <Order>[].obs;
   late RxList<String> workDays = <String>[].obs;
+  RxDouble totalSum = RxDouble(0.0);
+  RxInt orderQuantity = RxInt(0);
 
   @override
   void onInit() {
@@ -22,6 +24,11 @@ class HistoryController extends GetxController {
     // Fetch orders and work days
     fetchOrders();
     fetchWorkDays();
+    getTotalSumOrdersByMonth( DateTime.now());
+    getOrdersByMonth(DateTime.now());
+    getOrderCountByMonth(DateTime.now());
+
+
   }
 
   Future<void> fetchOrders() async {
@@ -45,13 +52,15 @@ class HistoryController extends GetxController {
 
   Future<void> fetchWorkDays() async {
     try {
-      final workDates = await WorkDatabase.instance.getDates();
+      final workDates = await WorkDatabase.instance.getDatesDesc();
       workDays.value = workDates;
     } catch (e) {
       print(e);
       // Handle the error
     }
   }
+
+
 
 
   List<DateTime?> getDistinctDates() {
@@ -86,38 +95,15 @@ class HistoryController extends GetxController {
     return totalSum;
   }
 
-  /*Future<Map<String, int>> getProductQuantitiesByDate(DateTime date) async {
-    try {
-      // Filter orders by the specified date
-      final ordersByDate = await _orderDatabase.getOrdersByStartDate(date);
+  Future<RxDouble> getTotalSumOrdersByMonth(DateTime date) async {
+    final filteredOrders = await getOrdersByMonth(date);
+    double totalsum = filteredOrders.fold(0, (sum, order) => sum + order.totalPrice);
+    totalSum.value = totalsum;
+    return totalSum;
 
-      // Retrieve order items for the filtered orders
-      final orderItems = <Map<String, dynamic>>[];
-      for (final order in ordersByDate) {
-        final items = await _orderDatabase.getOrderItems(order.id);
-        orderItems.addAll(items);
-      }
+  }
 
-      // Calculate product quantities
-      final productQuantities = <String, int>{};
-      for (final item in orderItems) {
-        final productId = item['product_id'] as String;
-        final quantity = item['quantity'] as int;
-        if (productQuantities.containsKey(productId)) {
-          productQuantities[productId] = productQuantities[productId]! + quantity;
-        } else {
-          productQuantities[productId] = quantity;
-        }
-      }
-
-      return productQuantities;
-    } catch (e) {
-      print(e);
-      return {};
-    }
-  }*/
-
-  Future<Map<String, int>> getProductQuantitiesByDate(DateTime date) async {
+ Future<Map<String, int>> getProductQuantitiesByDate(DateTime date) async {
     try {
       return await _orderDatabase.getProductQuantitiesByDate(date);
     } catch (e) {
@@ -125,6 +111,56 @@ class HistoryController extends GetxController {
       return {};
     }
   }
+
+  Future<Map<String, int>> getProductQuantitiesByMonth(DateTime date) async {
+    try {
+      return await _orderDatabase.getProductQuantitiesByMonth(date);
+    } catch (e) {
+      print(e);
+      return {};
+    }
+  }
+
+  Future<List<Order>> getOrdersByMonth(DateTime date) async {
+    try {
+      final ordersByMonth = await _orderDatabase.getOrdersByMonth(date);
+      return ordersByMonth;
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
+  Future<List<Order>> getOrdersByYear(DateTime date) async {
+    try {
+      final ordersByYear = await _orderDatabase.getOrdersByYear(date);
+      return ordersByYear;
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
+  Future<List<Order>> getOrdersByWeek(int week) async {
+    try {
+      final ordersByWeek = await _orderDatabase.getOrdersByWeekNumber(week);
+      return ordersByWeek;
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
+
+
+  Future<int> getOrderCountByMonth(DateTime month) async {
+    List<Order> orders = await getOrdersByMonth(month);
+    int orderCount = orders.length;
+    orderQuantity.value = orderCount;
+    return orderCount;
+  }
+
+
 
 
 }

@@ -11,12 +11,13 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{799C0A4B-6054-4AFB-A3F8-7592675954F0}
 AppName={#MyAppName}
+AppMutex={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
-; Uncomment the following line to run in non administrative install mode (install for current user only.)
+; Uncomment the following line to run in non-administrative install mode (install for current user only).
 ;PrivilegesRequired=lowest
 OutputDir=C:\Users\manel\Desktop\youmazgestion\installers
 OutputBaseFilename=testlast
@@ -36,6 +37,14 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "C:\Users\manel\Desktop\youmazgestion\build\windows\runner\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\manel\Desktop\youmazgestion\build\windows\runner\Release\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\manel\Desktop\youmazgestion\build\windows\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\manel\OneDrive\Documents\products2.db"; DestDir: "{app}\Database"; Flags: ignoreversion;
+Source: "C:\Users\manel\OneDrive\Documents\orderdb.db"; DestDir: "{app}\Database"; Flags: ignoreversion;
+Source: "C:\Users\manel\OneDrive\Documents\usersDb.db"; DestDir: "{app}\Database"; Flags: ignoreversion;
+Source: "C:\Users\manel\OneDrive\Documents\work.db"; DestDir: "{app}\Database"; Flags: ignoreversion;
+
+[Dirs]
+Name: "{app}\Database"; Permissions: users-full; Flags: uninsneveruninstall;
+
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -43,5 +52,4 @@ Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: postinstall skipifsilent

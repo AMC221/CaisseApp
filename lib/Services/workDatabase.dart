@@ -69,4 +69,10 @@ class WorkDatabase {
     return List.generate(result.length, (index) => result[index]['date'] as String);
   }
 
+  // recuperer les dates par ordre du plus recent au plus ancien
+  Future<List<String>> getDatesDesc() async {
+    final db = await database;
+    final result = await db.query('work', orderBy: 'date DESC');
+    return List.generate(result.length, (index) => result[index]['date'] as String);
+  }
 }

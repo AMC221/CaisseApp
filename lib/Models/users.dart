@@ -33,7 +33,7 @@ class Users {
     return Users(
       id: map['id'],
       name: map['name'],
-      lastName: map['lastName'],
+      lastName: map['lastname'],
       email: map['email'],
       password: map['password'],
       username: map['username'],

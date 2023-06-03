@@ -90,5 +90,28 @@ class AuthDatabase {
       return false;
     }
   }
+  //recuperer un user grace a son username
+  Future<Users> getUser(String username) async {
+   try {
+     final db = await database;
+     List<Map<String, dynamic>> x = await db.rawQuery(
+         'SELECT * from users WHERE username = ?',
+         [username]);
+     print(x.first);
+     Users user = Users.fromMap(x.first);
+     print(user);
+     return user;
+   } catch (e) {
+     print(e);
+     throw e;
+   }
+  }
+
+  Future<List<Users>> getAllUsers() async {
+    final db = await database;
+    final orderBy = 'id ASC';
+    final result = await db.query('users', orderBy: orderBy);
+    return result.map((json) => Users.fromMap(json)).toList();
+  }
 
 }

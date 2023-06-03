@@ -30,6 +30,9 @@ class _AccueilPageState extends State<AccueilPage> {
   int orderId = 0;
   List<CartItem> selectedProducts = [];
   int selectedQuantity = 1; // Quantité sélectionnée par défaut
+  double totalCartPrice = 0;
+  double amountPaid = 0;
+
 
   @override
   void initState() {
@@ -42,9 +45,10 @@ class _AccueilPageState extends State<AccueilPage> {
   Future<void> saveOrderToDatabase() async {
     final totalPrice = calculateTotalPrice();
     final dateTime = DateTime.now().toString();
+    String user = userController.username;
 
     // Insert the order into the database
-    orderId = await orderDatabase.insertOrder(totalPrice, dateTime, MyApp.startDate!);
+    orderId = await orderDatabase.insertOrder(totalPrice, dateTime, MyApp.startDate!, user);
 
     // Insert order items into the database
     for (final cartItem in selectedProducts) {
@@ -122,15 +126,33 @@ class _AccueilPageState extends State<AccueilPage> {
   }
 
   void showTicketPage() {
+    // Calculer la somme totale du panier
+    final double totalCartPrice = calculateTotalPrice();
+
     // Vérifier si des produits sont présents dans le panier
     if (selectedProducts.isNotEmpty) {
-      // Passer les produits et les informations de l'entreprise à la page du ticket
-      Get.to(TicketPage(
-        businessName: 'Youmaz',
-        businessAddress: 'quartier escale, Diourbel, Sénégal, en face de Sonatel',
-        businessPhoneNumber: '77 446 92 68',
-        cartItems: selectedProducts,
-      ));
+      // Vérifier si la somme payée est suffisante et supérieure ou égale au total du panier
+      if (amountPaid >= totalCartPrice) {
+        // Passer les produits et les informations de l'entreprise à la page du ticket
+        Get.offAll(TicketPage(
+          businessName: 'Youmaz',
+          businessAddress: 'quartier escale, Diourbel, Sénégal, en face de Sonatel',
+          businessPhoneNumber: '77 446 92 68',
+          cartItems: selectedProducts,
+          totalCartPrice: totalCartPrice,
+          amountPaid: amountPaid,
+        ));
+      } else {
+        // Afficher un message d'erreur si la somme payée est insuffisante
+        Get.snackbar(
+          'Paiement incomplet',
+          'Le montant payé est insuffisant. Veuillez payer le montant total du panier.',
+          snackPosition: SnackPosition.BOTTOM,
+          duration: Duration(seconds: 3),
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
     } else {
       // Afficher un message d'erreur si le panier est vide
       Get.snackbar(
@@ -143,6 +165,7 @@ class _AccueilPageState extends State<AccueilPage> {
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -230,7 +253,7 @@ class _AccueilPageState extends State<AccueilPage> {
                                   final product = products[index];
 
                                   return Card(
-                                    elevation:7,
+                                    elevation: 7,
                                     shadowColor: Colors.redAccent,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
@@ -331,15 +354,26 @@ class _AccueilPageState extends State<AccueilPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            const Text(
-                              'Panier',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange,
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Text(
+                                  'Panier',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.orange,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.shopping_cart,
+                                  color: Colors.red,
+                                ),
+                              ],
                             ),
+
+
                             const SizedBox(height: 16),
                             Expanded(
                               child: ListView.builder(
@@ -361,13 +395,12 @@ class _AccueilPageState extends State<AccueilPage> {
                                         SizedBox(width: 8),
                                         IconButton(
                                           icon: Icon(Icons.delete),
+
                                           onPressed: () {
-                                            // Supprimer le produit du panier
                                             setState(() {
                                               selectedProducts.removeAt(index);
                                             });
-                                          },
-                                          color: Colors.red,
+                                          },color: Colors.redAccent,
                                         ),
                                       ],
                                     ),
@@ -375,19 +408,40 @@ class _AccueilPageState extends State<AccueilPage> {
                                 },
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16),
+                            Text(
+                              'Total: ${calculateTotalPrice().toStringAsFixed(2)} fcfa',
+                              textAlign: TextAlign.end,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            TextFormField(
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                labelText: 'Montant payé',
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  amountPaid = double.parse(value);
+                                });
+                              },
+                            ),
+                            SizedBox(height: 8),
                             ElevatedButton(
                               onPressed: () {
                                 saveOrderToDatabase();
                               },
                               style: ElevatedButton.styleFrom(
-                                primary: Colors.redAccent,
+                                primary: Colors.orange,
                                 onPrimary: Colors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(18),
                                 ),
                               ),
-                              child: const Text('Valider la commande'),
+                              child: const Text('Payer'),
                             ),
                           ],
                         ),
@@ -397,7 +451,7 @@ class _AccueilPageState extends State<AccueilPage> {
                 );
               }
             } else {
-              return const SizedBox();
+              return const Center(child: Text("Aucun produit disponible"));
             }
           },
         ),

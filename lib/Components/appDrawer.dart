@@ -4,7 +4,10 @@ import 'package:youmazgestion/Views/historique.dart';
 
 import '../Components/app_bar.dart';
 import '../Views/addProduct.dart';
+import '../Views/bilanMois.dart';
 import '../Views/gestionProduct.dart';
+import '../Views/listUser.dart';
+import '../Views/loginPage.dart';
 import '../Views/registrationPage.dart';
 import '../accueil.dart';
 import '../controller/userController.dart';
@@ -16,14 +19,15 @@ class CustomDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Drawer(
       backgroundColor: Colors.white,
       child: ListView(
         children: [
           GetBuilder<UserController>(
             builder: (controller) => UserAccountsDrawerHeader(
-              accountName: Text(controller.userName),
               accountEmail: Text(controller.email),
+              accountName: Text(controller.name),
               currentAccountPicture: CircleAvatar(
                 backgroundImage: AssetImage("assets/youmaz2.png"),
               ),
@@ -51,7 +55,13 @@ class CustomDrawer extends StatelessWidget {
             iconColor: Colors.green,
             title: Text("Ajouter un utilisateur"),
             onTap: () {
-              Get.to(RegistrationPage());
+              if(userController.role == "admin"){
+                Get.to(RegistrationPage());
+              }else{
+                Get.snackbar("Accés refusé",backgroundColor: Colors.red,colorText: Colors.white,icon: Icon(Icons.error),duration: Duration(seconds: 3),snackPosition: SnackPosition.TOP,
+                    "Vous n'avez pas les droits pour ajouter un utilisateur");
+              }
+
             },
           ),
           ListTile(
@@ -60,6 +70,12 @@ class CustomDrawer extends StatelessWidget {
             title: Text("Modifier/Supprimer un utilisateur"),
             onTap: () {
               // Action lorsque l'utilisateur clique sur "Modifier/Supprimer un utilisateur"
+              if(userController.role == "admin"){
+                Get.to(ListUserPage());
+              }else{
+                Get.snackbar("Accés refusé",backgroundColor: Colors.red,colorText: Colors.white,icon: Icon(Icons.error),duration: Duration(seconds: 3),snackPosition: SnackPosition.TOP,
+                    "Vous n'avez pas les droits pour modifier/supprimer un utilisateur");
+              }
 
             },
           ),
@@ -67,9 +83,13 @@ class CustomDrawer extends StatelessWidget {
             leading: Icon(Icons.add),
             iconColor: Colors.indigoAccent,
             title: Text("Ajouter un produit"),
-            onTap: () {
+            onTap: () { if(userController.role == "admin"){
               // Action lorsque l'utilisateur clique sur "Ajouter un produit"
               Get.to(AddProductPage());
+            }else{
+              Get.snackbar("Accés refusé",backgroundColor: Colors.red,colorText: Colors.white,icon: Icon(Icons.error),duration: Duration(seconds: 3),snackPosition: SnackPosition.TOP,
+                   "Vous n'avez pas les droits pour ajouter un produit");
+            }
             },
           ),
           ListTile(
@@ -77,15 +97,28 @@ class CustomDrawer extends StatelessWidget {
             iconColor: Colors.redAccent,
             title: Text("Modifier/Supprimer un produit"),
             onTap: () {
+              if(userController.role == "admin"){
               // Action lorsque l'utilisateur clique sur "Modifier/Supprimer un produit"
               Get.to(GestionProduit());
+            }else {
+                Get.snackbar("Accés refusé",backgroundColor: Colors.red,colorText: Colors.white,icon: Icon(Icons.error),duration: Duration(seconds: 3),snackPosition: SnackPosition.TOP,
+                    "Vous n'avez pas les droits pour modifier/supprimer un produit");
+
+              }
             },
           ),
           ListTile(
             leading: Icon(Icons.bar_chart),
             title: Text("Bilan"),
             onTap: () {
-              // Action lorsque l'utilisateur clique sur "Bilan"
+              if (userController.role == "admin") {
+                Get.to(BilanMois());
+
+              } else {
+                Get.snackbar("Accés refusé",backgroundColor: Colors.red,colorText: Colors.white,icon: Icon(Icons.error_outline_outlined),duration: Duration(seconds: 3),snackPosition: SnackPosition.TOP,
+                    "Vous n'avez pas les droits pour accéder au bilan");
+              }
+
             },
           ),
           ListTile(
@@ -97,15 +130,6 @@ class CustomDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Icon(Icons.logout),
-            iconColor: Colors.red,
-            title: Text("Déconnexion"),
-            onTap: () {
-              // Action lorsque l'utilisateur clique sur "Déconnexion"
-
-            },
-          ),
-          ListTile(
             leading: Icon(Icons.history),
             iconColor: Colors.blue,
             title: Text("Historique"),
@@ -114,6 +138,35 @@ class CustomDrawer extends StatelessWidget {
               Get.to(HistoryPage());
             },
 
+          ),
+          ListTile(
+            leading: Icon(Icons.logout),
+            iconColor: Colors.red,
+            title: Text("Déconnexion"),
+            onTap: () {
+              // Action lorsque l'utilisateur clique sur "Déconnexion"
+              // display confirmation dialog
+              Get.defaultDialog(
+                title: "Déconnexion",
+                content: Text("Voulez-vous vraiment vous déconnecter ?"),
+                actions: [
+                  ElevatedButton(
+                    child: Text("Oui"),
+                    onPressed: () {
+                      Get.offAll(LoginPage());
+                    },
+                  ),
+                  ElevatedButton(
+                    child: Text("Non"),
+                    onPressed: () {
+                      Get.back();
+                    },
+                  )
+                ],
+              );
+
+
+            },
           )
 
         ],

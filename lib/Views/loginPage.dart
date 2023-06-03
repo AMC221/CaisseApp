@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_login/flutter_login.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:youmazgestion/accueil.dart';
 import 'package:youmazgestion/Services/authDatabase.dart';
+
+import '../Models/users.dart';
+import '../controller/userController.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -10,6 +16,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   late TextEditingController _usernameController;
   late TextEditingController _passwordController;
+  final UserController userController = Get.put(UserController());
   bool _isErrorVisible = false;
 
   @override
@@ -42,11 +49,19 @@ class _LoginPageState extends State<LoginPage> {
     // Get the entered username and password
     final String username = _usernameController.text;
     final String password = _passwordController.text;
+    print(username);
+    print(password);
 
     try {
       bool isValidUser = await AuthDatabase.instance.verifyUser(username, password);
-
+      Users user = await AuthDatabase.instance.getUser(username);
+      print(isValidUser);
       if (isValidUser) {
+        print('User is valid');
+
+
+        print(user);
+        userController.setUser(user);
         // Login successful
         setState(() {
           _isErrorVisible = false;
@@ -63,8 +78,8 @@ class _LoginPageState extends State<LoginPage> {
         });
       }
     } catch (error) {
-      // Login failed
       print(error);
+
       setState(() {
         _isErrorVisible = true;
       });

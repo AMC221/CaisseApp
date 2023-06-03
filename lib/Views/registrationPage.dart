@@ -15,6 +15,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   late TextEditingController _emailController;
   late TextEditingController _usernameController;
   late TextEditingController _passwordController;
+  String _selectedRole = 'user'; // Default role is 'user'
 
   @override
   void initState() {
@@ -44,6 +45,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final String email = _emailController.text;
     final String username = _usernameController.text;
     final String password = _passwordController.text;
+    final String role = _selectedRole;
 
     // Create a new user object
     final Users user = Users(
@@ -53,7 +55,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       email: email,
       password: password,
       username: username,
-      role: 'user',
+      role: role,
     );
 
     // Save the user in the database
@@ -119,7 +121,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               TextField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: 'Name',
+                  labelText: 'First Name',
                 ),
               ),
               SizedBox(height: 16.0),
@@ -151,6 +153,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   labelText: 'Password',
                 ),
                 obscureText: true,
+              ),
+              SizedBox(height: 16.0),
+              DropdownButton<String>(
+                value: _selectedRole,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedRole = newValue!;
+                  });
+                },
+                items: <String>['admin', 'user']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
               ),
               SizedBox(height: 16.0),
               ElevatedButton(

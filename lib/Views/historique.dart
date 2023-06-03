@@ -25,7 +25,10 @@ class HistoryPage extends GetView<HistoryController> {
                 controller.onInit();
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.blue,
+                primary: Colors.deepOrangeAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
               ),
               child: const Text(
                 'Rafraîchir',
@@ -42,7 +45,7 @@ class HistoryPage extends GetView<HistoryController> {
                 final distinctDates = controller.workDays;
 
                 if (distinctDates.isEmpty) {
-                  return Center(
+                  return const Center(
                     child: Text(
                       'Aucune journée de travail trouvée',
                       style: TextStyle(
@@ -71,7 +74,7 @@ class HistoryPage extends GetView<HistoryController> {
                           ),
                         ),
                         leading: CircleAvatar(
-                          backgroundColor: Colors.blue,
+                          backgroundColor: Colors.deepOrange,
                           child: Icon(
                             Icons.calendar_today,
                             color: Colors.white,
@@ -79,7 +82,7 @@ class HistoryPage extends GetView<HistoryController> {
                         ),
                         trailing: Icon(
                           Icons.arrow_forward,
-                          color: Colors.blue,
+                          color: Colors.deepOrange,
                         ),
                         onTap: () => navigateToDetailPage(date),
                       ),

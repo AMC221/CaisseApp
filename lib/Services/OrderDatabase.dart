@@ -59,7 +59,8 @@ class OrderDatabase {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         total_price REAL,
         date_time TEXT,
-        start_date TEXT
+        start_date TEXT,
+        user TEXT,
       )
     ''');
     }
@@ -82,6 +83,7 @@ class OrderDatabase {
       double totalPrice,
       String dateTime,
       DateTime? startDate,
+      String user,
       ) async {
     final db = await database;
     final formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate!);
@@ -92,6 +94,7 @@ class OrderDatabase {
         'total_price': totalPrice,
         'date_time': dateTime,
         'start_date': formattedStartDate,
+        'user': user,
       },
     );
     return orderId;
@@ -131,6 +134,8 @@ class OrderDatabase {
         startDate: orderMap['start_date'] != null
             ? DateTime.parse(orderMap['start_date'])
             : null,
+        user: orderMap['user'],
+
       );
     }).toList();
   }
@@ -162,9 +167,11 @@ class OrderDatabase {
         startDate: orderMap['start_date'] != null
             ? DateTime.parse(orderMap['start_date'] as String)
             : null,
+        user: orderMap['user'] as String,
       );
     }).toList();
   }
+
 
   Future<Map<String, int>> getProductQuantitiesByDate(DateTime date) async {
     final db = await database;
@@ -187,5 +194,103 @@ class OrderDatabase {
 
     return productQuantities;
   }
+
+  Future<Map<String, int>> getProductQuantitiesByMonth(DateTime date) async {
+    final db = await database;
+    final formattedDate = DateFormat('yyyy-MM').format(date);
+
+    final result = await db.rawQuery('''
+    SELECT product_name, SUM(quantity) AS total_quantity
+    FROM order_items
+    INNER JOIN orders ON order_items.order_id = orders.id
+    WHERE strftime('%Y-%m', orders.start_date) = ?
+    GROUP BY product_name
+  ''', [formattedDate]);
+
+    final productQuantities = <String, int>{};
+    for (final row in result) {
+      final productName = row['product_name'] as String;
+      final quantity = row['total_quantity'] as int;
+      productQuantities[productName] = quantity;
+    }
+
+    return productQuantities;
+  }
+
+
+
+  Future<List<Order>> getOrdersByMonth(DateTime date) async {
+    final db = await database;
+    final formattedDate = DateFormat('yyyy-MM').format(date);
+
+    final orderData = await db.rawQuery('''
+    SELECT id, total_price, date_time, start_date
+    FROM orders
+    WHERE strftime('%Y-%m', start_date) = ?
+  ''', [formattedDate]);
+
+    return orderData.map((orderMap) {
+      return Order(
+        id: orderMap['id'] as int,
+        totalPrice: orderMap['total_price'] as double,
+        dateTime: orderMap['date_time'] as String,
+        startDate: orderMap['start_date'] != null
+            ? DateTime.parse(orderMap['start_date'] as String)
+            : null,
+        user: orderMap['user'] as String,
+      );
+    }).toList();
+  }
+
+  // maintenant je vais recuperer les commande par semaine en utilisant les semaines de l'année
+  Future<List<Order>> getOrdersByWeekNumber(int weekNumber) async {
+    final db = await database;
+
+    final orderData = await db.rawQuery('''
+    SELECT id, total_price, date_time, start_date
+    FROM orders
+    WHERE strftime('%W', start_date) = ?
+  ''', [(weekNumber - 1).toString()]);
+
+    return orderData.map((orderMap) {
+      return Order(
+        id: orderMap['id'] as int,
+        totalPrice: orderMap['total_price'] as double,
+        dateTime: orderMap['date_time'] as String,
+        startDate: orderMap['start_date'] != null
+            ? DateTime.parse(orderMap['start_date'] as String)
+            : null,
+        user: orderMap['user'] as String,
+      );
+    }).toList();
+  }
+
+
+
+  Future<List<Order>> getOrdersByYear(DateTime date) async {
+    final db = await database;
+    final formattedDate = DateFormat('yyyy').format(date);
+
+    final orderData = await db.rawQuery('''
+    SELECT id, total_price, date_time, start_date
+    FROM orders
+    WHERE strftime('%Y', start_date) = ?
+  ''', [formattedDate]);
+
+    return orderData.map((orderMap) {
+      return Order(
+        id: orderMap['id'] as int,
+        totalPrice: orderMap['total_price'] as double,
+        dateTime: orderMap['date_time'] as String,
+        startDate: orderMap['start_date'] != null
+            ? DateTime.parse(orderMap['start_date'] as String)
+            : null,
+        user: orderMap['user'] as String,
+      );
+    }).toList();
+  }
+
+
+
 
 }

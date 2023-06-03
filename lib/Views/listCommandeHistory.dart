@@ -197,6 +197,7 @@ class HistoryDetailPage extends StatelessWidget {
                             ),
                             subtitle: Text('Total: ${order.totalPrice} fcfa'),
                             trailing: Text('Date: ${order.dateTime}'),
+                            leading: Text('vendeur: ${order.user}'),
                             onTap: () {
                               Get.to(() => DetailPage(order: order));
                             },

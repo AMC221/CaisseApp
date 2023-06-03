@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: MyApp.primaryGradient,
                   ),
-                  child: AccueilPage(),
+                  child: LoginPage(),
                 );
               }
             },

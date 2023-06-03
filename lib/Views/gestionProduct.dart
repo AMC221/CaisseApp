@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:youmazgestion/Components/app_bar.dart';
 
+import '../Components/appDrawer.dart';
 import '../Models/produit.dart';
 import '../Services/productDatabase.dart';
 import 'editProduct.dart';
@@ -14,9 +16,8 @@ class GestionProduit extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width * 0.8;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Gestion des produits'),
-      ),
+      appBar:const CustomAppBar(title: 'Gestion des produits'),
+      drawer: CustomDrawer(),
       body: FutureBuilder<List<Product>>(
         future: _productDatabase.getProducts(),
         builder: (context, snapshot) {
