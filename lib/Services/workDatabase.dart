@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common/sqlite_api.dart';
@@ -29,9 +32,20 @@ class WorkDatabase {
   }
 
   Future<Database> _initDB(String filePath) async {
+    // Obtenez le répertoire de stockage local de l'application
     final documentsDirectory = await getApplicationDocumentsDirectory();
     final path = join(documentsDirectory.path, filePath);
 
+    // Vérifiez si le fichier de base de données existe déjà dans le répertoire de stockage local
+    bool dbExists = await File(path).exists();
+    if (!dbExists) {
+      // Si le fichier n'existe pas, copiez-le depuis le dossier assets/database
+      ByteData data = await rootBundle.load('assets/database/$filePath');
+      List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      await File(path).writeAsBytes(bytes);
+    }
+
+    // Ouvrez la base de données
     return await databaseFactoryFfi.openDatabase(path);
   }
 

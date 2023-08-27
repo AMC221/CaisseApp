@@ -57,6 +57,10 @@ class _AccueilPageState extends State<AccueilPage> {
       final price = product.price * quantity;
 
       await orderDatabase.insertOrderItem(orderId, product.name, quantity, price);
+
+      // Mettre à jour le stock du produit
+      final updatedStock = product.stock! - quantity;
+      await productDatabase.updateStock(product.id!, updatedStock);
     }
     showTicketPage();
   }
@@ -302,6 +306,17 @@ class _AccueilPageState extends State<AccueilPage> {
                                                         color: Colors.green,
                                                       ),
                                                     ),
+                                                    if (product.isStockDefined()) ...[
+                                                      const SizedBox(height: 8),
+                                                      const Text(
+                                                        'En stock',
+                                                        style: TextStyle(
+                                                          fontWeight: FontWeight.bold,
+                                                          fontSize: 12,
+                                                          color: Colors.green,
+                                                        ),
+                                                      ),
+                                                    ],
                                                     const SizedBox(height: 8),
                                                     QuantityInput(
                                                       value: selectedQuantity,
@@ -339,6 +354,8 @@ class _AccueilPageState extends State<AccueilPage> {
                                       ),
                                     ),
                                   );
+                                  ;
+                                  ;
                                 },
                               ),
                             ],

@@ -24,7 +24,7 @@ class HistoryController extends GetxController {
     // Fetch orders and work days
     fetchOrders();
     fetchWorkDays();
-    getTotalSumOrdersByMonth( DateTime.now());
+    getTotalSumOrdersByMonth(DateTime.now());
     getOrdersByMonth(DateTime.now());
     getOrderCountByMonth(DateTime.now());
 
@@ -99,6 +99,7 @@ class HistoryController extends GetxController {
     final filteredOrders = await getOrdersByMonth(date);
     double totalsum = filteredOrders.fold(0, (sum, order) => sum + order.totalPrice);
     totalSum.value = totalsum;
+    print(totalSum.value);
     return totalSum;
 
   }
@@ -124,6 +125,7 @@ class HistoryController extends GetxController {
   Future<List<Order>> getOrdersByMonth(DateTime date) async {
     try {
       final ordersByMonth = await _orderDatabase.getOrdersByMonth(date);
+      print("ma");
       return ordersByMonth;
     } catch (e) {
       print(e);

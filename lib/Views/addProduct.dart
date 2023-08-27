@@ -89,7 +89,6 @@ class _AddProductPageState extends State<AddProductPage> {
 
     if (name.isNotEmpty && price > 0 && image.isNotEmpty) {
       final product = Product(
-        id: 3,
         name: name,
         price: price,
         image: image,

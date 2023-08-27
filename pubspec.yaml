@@ -50,6 +50,8 @@ dependencies:
   msix: ^3.7.0
   flutter_charts: ^0.5.1
   syncfusion_flutter_charts: ^21.2.4
+  shelf: ^1.4.1
+  shelf_router: ^1.1.4
 
 
 

@@ -6,6 +6,7 @@ import '../Components/app_bar.dart';
 import '../Views/addProduct.dart';
 import '../Views/bilanMois.dart';
 import '../Views/gestionProduct.dart';
+import '../Views/gestionStock.dart';
 import '../Views/listUser.dart';
 import '../Views/loginPage.dart';
 import '../Views/registrationPage.dart';
@@ -122,11 +123,18 @@ class CustomDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Icon(Icons.settings),
-            iconColor: Colors.blueGrey,
-            title: Text("Paramètres"),
+            leading: Icon(Icons.inventory),
+            iconColor: Colors.blueAccent,
+            title: Text("Gestion de stock"),
             onTap: () {
-              // Action lorsque l'utilisateur clique sur "Paramètres"
+              if(userController.role == "admin"){
+                // Action lorsque l'utilisateur clique sur "Gestion de stock"
+                Get.to(GestionStockPage());
+              }else{
+                Get.snackbar("Accés refusé",backgroundColor: Colors.red,colorText: Colors.white,icon: Icon(Icons.error),duration: Duration(seconds: 3),snackPosition: SnackPosition.TOP,
+                    "Vous n'avez pas les droits pour accéder à la gestion de stock");
+              }
+
             },
           ),
           ListTile(

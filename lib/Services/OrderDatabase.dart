@@ -224,7 +224,7 @@ class OrderDatabase {
     final formattedDate = DateFormat('yyyy-MM').format(date);
 
     final orderData = await db.rawQuery('''
-    SELECT id, total_price, date_time, start_date
+    SELECT id, total_price, date_time, start_date, user
     FROM orders
     WHERE strftime('%Y-%m', start_date) = ?
   ''', [formattedDate]);
@@ -289,8 +289,6 @@ class OrderDatabase {
       );
     }).toList();
   }
-
-
 
 
 }

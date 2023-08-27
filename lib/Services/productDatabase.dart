@@ -59,7 +59,8 @@ class ProductDatabase {
         name TEXT,
         price REAL,
         image TEXT,
-        category TEXT
+        category TEXT,
+        stock INTEGER,
       )
     ''');
     }
@@ -112,6 +113,12 @@ class ProductDatabase {
     return List.generate(maps.length, (i) {
       return Product.fromMap(maps[i]);
     });
+  }
+
+  // modifier la quantité de stock
+  Future<int> updateStock(int id, int stock) async {
+    final db = await database;
+    return await db.rawUpdate('UPDATE products SET stock = ? WHERE id = ?', [stock, id]);
   }
 
 }
