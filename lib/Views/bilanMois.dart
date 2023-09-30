@@ -5,7 +5,6 @@ import 'package:youmazgestion/controller/HistoryController.dart';
 
 import 'bilanDesJourne.dart';
 
-
 class BilanMois extends StatefulWidget {
   @override
   _BilanMoisState createState() => _BilanMoisState();
@@ -25,20 +24,29 @@ class _BilanMoisState extends State<BilanMois> {
     });
   }
 
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title: 'Bilan du mois'),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+      body: Column(
+        children: [
+          // Les 3 cartes en haut
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              SizedBox(height: 10),
+              _buildInfoCard(
+                title: 'Chiffre réalisé',
+                value: controller.totalSum.value.toStringAsFixed(2) + ' fcfa',
+                color: Colors.green,
+                icon: Icons.monetization_on,
+
+              ),
+              _buildInfoCard(
+                title: 'Total de commandes',
+                value: controller.orderQuantity.value.toString(),
+                color: Colors.orange,
+                icon: Icons.shopping_cart,
+              ),
               ElevatedButton(
                 onPressed: () {
                   // Redirect to BilanDesJourne page
@@ -46,64 +54,64 @@ class _BilanMoisState extends State<BilanMois> {
                 },
                 child: Text('Voir les jours'),
               ),
-
-              SizedBox(height: 20),
-
-              Obx(() => Text(
-                'Chiffre réalisé : ${controller.totalSum.value.toStringAsFixed(2)} fcfa',
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
-              )),
-              SizedBox(height: 20),
-              Obx(() => Text(
-                'Total de commandes : ${controller.orderQuantity.value}',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.green),
-              )),
-              SizedBox(height: 20),
-              Text(
-                'Detail produit :',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              Container(
-                height: MediaQuery.of(context).size.height * 0.5,
-                width: MediaQuery.of(context).size.width * 0.9,
-                child: FutureBuilder<Map<String, int>>(
-                  future: controller.getProductQuantitiesByMonth(selectedDate),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Text('Erreur lors de la récupération des quantités de produits');
-                    } else {
-                      final quantities = snapshot.data!;
-                      return Column(
-                        children: [
-                          SizedBox(height: 20),
-                          Expanded(child:
-                          ListView.builder(
-                            itemCount: quantities.length,
-                            itemBuilder: (context, index) {
-                              final entry = quantities.entries.elementAt(index);
-                              return ListTile(
-                                leading: Icon(Icons.shopping_cart),
-                                title: Text(
-                                  entry.key,
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                                ),
-                                subtitle: Text('Quantité : ${entry.value}', style: TextStyle(fontSize: 16)),
-                              );
-                            },
-                          ),
-                          ),
-                        ],
-                      );
-                    }
-                  },
-                ),
-              ),
             ],
           ),
-        ),
+          // La zone déroulante
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Detail produit :',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 10),
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      child: FutureBuilder<Map<String, int>>(
+                        future: controller.getProductQuantitiesByMonth(selectedDate),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Text('Erreur lors de la récupération des quantités de produits');
+                          } else {
+                            final quantities = snapshot.data!;
+                            return Column(
+                              children: [
+                                SizedBox(height: 20),
+                                Expanded(
+                                  child: ListView.builder(
+                                    itemCount: quantities.length,
+                                    itemBuilder: (context, index) {
+                                      final entry = quantities.entries.elementAt(index);
+                                      return ListTile(
+                                        leading: Icon(Icons.shopping_cart),
+                                        title: Text(
+                                          entry.key,
+                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                        ),
+                                        subtitle: Text('Quantité : ${entry.value}', style: TextStyle(fontSize: 16)),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.refresh),
@@ -131,6 +139,38 @@ class _BilanMoisState extends State<BilanMois> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildInfoCard({
+    required String title,
+    required String value,
+    required Color color,
+    required IconData icon,
+  }) {
+    return Card(
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              size: 40,
+              color: color,
+            ),
+            SizedBox(height: 10),
+            Text(
+              title,
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 10),
+            Text(
+              value,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
